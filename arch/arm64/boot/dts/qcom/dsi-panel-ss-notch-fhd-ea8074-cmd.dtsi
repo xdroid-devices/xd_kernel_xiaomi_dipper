@@ -60,6 +60,8 @@
 		qcom,mdss-dsi-panel-blackness-level = <3230>;
 		qcom,dispparam-enabled;
 		qcom,mdss-dsi-init-delay-us = <5000>;
+		qcom,disp-doze-lbm-backlight = <10>;
+		qcom,disp-doze-hbm-backlight = <133>;
 		qcom,mdss-panel-on-dimming-delay = <200>;
 		qcom,mdss-dsi-panel-dc-threshold = <320>;
  		qcom,suspend-ulps-enabled;
