@@ -4,6 +4,7 @@
  *             https://www.huawei.com/
  */
 #include "compress.h"
+#include "staging.h"
 #include <linux/module.h>
 #include <linux/lz4.h>
 

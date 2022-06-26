@@ -61,6 +61,9 @@ struct erofs_sb_info {
 
 	/* the dedicated workstation for compression */
 	struct radix_tree_root workstn_tree;
+	struct {
+		spinlock_t lock;
+	} workstn;
 
 	/* strategy of sync decompression (false - auto, true - force on) */
 	bool readahead_sync_decompress;
@@ -115,6 +118,11 @@ struct erofs_sb_info {
 #define clear_opt(sbi, option)	((sbi)->mount_opt &= ~EROFS_MOUNT_##option)
 #define set_opt(sbi, option)	((sbi)->mount_opt |= EROFS_MOUNT_##option)
 #define test_opt(sbi, option)	((sbi)->mount_opt & EROFS_MOUNT_##option)
+
+#ifdef CONFIG_EROFS_FS_ZIP
+#define erofs_workstn_lock(sbi)         spin_lock(&(sbi)->workstn.lock)
+#define erofs_workstn_unlock(sbi)       spin_unlock(&(sbi)->workstn.lock)
+#endif
 
 #ifdef CONFIG_EROFS_FS_ZIP
 enum {
@@ -384,8 +392,8 @@ extern const struct inode_operations erofs_symlink_iops;
 extern const struct inode_operations erofs_fast_symlink_iops;
 
 struct inode *erofs_iget(struct super_block *sb, erofs_nid_t nid, bool dir);
-int erofs_getattr(const struct path *path, struct kstat *stat,
-		  u32 request_mask, unsigned int query_flags);
+int erofs_getattr(struct vfsmount *mnt, struct dentry *dentry,
+		struct kstat *stat);
 
 /* namei.c */
 extern const struct inode_operations erofs_dir_iops;

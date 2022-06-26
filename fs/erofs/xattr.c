@@ -4,6 +4,7 @@
  *             https://www.huawei.com/
  */
 #include <linux/security.h>
+#include "staging.h"
 #include "xattr.h"
 
 struct xattr_iter {

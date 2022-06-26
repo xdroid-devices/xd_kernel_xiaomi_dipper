@@ -5,6 +5,8 @@
  */
 #include "zdata.h"
 #include "compress.h"
+#include "staging.h"
+#include <linux/overflow.h>
 #include <linux/prefetch.h>
 
 #include <trace/events/erofs.h>
@@ -813,7 +815,7 @@ static void z_erofs_decompressqueue_endio(struct bio *bio)
 {
 	tagptr1_t t = tagptr_init(tagptr1_t, bio->bi_private);
 	struct z_erofs_decompressqueue *q = tagptr_unfold_ptr(t);
-	blk_status_t err = bio->bi_status;
+	int err = bio->bi_error;
 	struct bio_vec *bvec;
 	unsigned int i;
 
@@ -869,7 +871,7 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
 		if (nr_pages > Z_EROFS_VMAP_GLOBAL_PAGES)
 			gfp_flags |= __GFP_NOFAIL;
 
-		pages = kvmalloc_array(nr_pages, sizeof(struct page *),
+		pages = erofs_kvmalloc(nr_pages * sizeof(struct page *),
 				       gfp_flags);
 
 		/* fallback to global pagemap for the lowmem scenario */
@@ -1199,7 +1201,7 @@ jobqueue_init(struct super_block *sb,
 	struct z_erofs_decompressqueue *q;
 
 	if (fg && !*fg) {
-		q = kvzalloc(sizeof(*q), GFP_KERNEL | __GFP_NOWARN);
+		q = erofs_kvzalloc(sizeof(*q), GFP_KERNEL | __GFP_NOWARN);
 		if (!q) {
 			*fg = true;
 			goto fg_out;
